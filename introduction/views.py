@@ -143,45 +143,74 @@ def sql(request):
     else:
         return redirect('login')
 
+# def sql_lab(request):
+#     if request.user.is_authenticated:
+
+#         name=request.POST.get('name')
+
+#         password=request.POST.get('pass')
+
+#         if name:
+
+#             if login.objects.filter(user=name):
+
+#                 sql_query = "SELECT * FROM introduction_login WHERE user='"+name+"'AND password='"+password+"'"
+#                 print(sql_query)
+#                 try:
+#                     print("\nin try\n")
+#                     val=login.objects.raw(sql_query)
+#                 except:
+#                     print("\nin except\n")
+#                     return render(
+#                         request, 
+#                         'Lab/SQL/sql_lab.html',
+#                         {
+#                             "wrongpass":password,
+#                             "sql_error":sql_query
+#                         })
+
+#                 if val:
+#                     user=val[0].user
+#                     return render(request, 'Lab/SQL/sql_lab.html',{"user1":user})
+#                 else:
+#                     return render(
+#                         request, 
+#                         'Lab/SQL/sql_lab.html',
+#                         {
+#                             "wrongpass":password,
+#                             "sql_error":sql_query
+#                         })
+#             else:
+#                 return render(request, 'Lab/SQL/sql_lab.html',{"no": "User not found"})
+#         else:
+#             return render(request, 'Lab/SQL/sql_lab.html')
+#     else:
+#         return redirect('login')
+
 def sql_lab(request):
     if request.user.is_authenticated:
-
-        name=request.POST.get('name')
-
-        password=request.POST.get('pass')
+        name = request.POST.get('name')
+        password = request.POST.get('pass')
 
         if name:
-
-            if login.objects.filter(user=name):
-
-                sql_query = "SELECT * FROM introduction_login WHERE user='"+name+"'AND password='"+password+"'"
-                print(sql_query)
-                try:
-                    print("\nin try\n")
-                    val=login.objects.raw(sql_query)
-                except:
-                    print("\nin except\n")
-                    return render(
-                        request, 
-                        'Lab/SQL/sql_lab.html',
-                        {
-                            "wrongpass":password,
-                            "sql_error":sql_query
-                        })
-
-                if val:
-                    user=val[0].user
-                    return render(request, 'Lab/SQL/sql_lab.html',{"user1":user})
+            # Check if the user exists
+            if login.objects.filter(user=name).exists():
+                # Use Django's ORM to validate user credentials securely
+                user_record = login.objects.filter(user=name, password=password).first()
+                
+                if user_record:
+                    user = user_record.user
+                    return render(request, 'Lab/SQL/sql_lab.html', {"user1": user})
                 else:
                     return render(
                         request, 
                         'Lab/SQL/sql_lab.html',
                         {
-                            "wrongpass":password,
-                            "sql_error":sql_query
+                            "wrongpass": password,
+                            "sql_error": "Invalid credentials."
                         })
             else:
-                return render(request, 'Lab/SQL/sql_lab.html',{"no": "User not found"})
+                return render(request, 'Lab/SQL/sql_lab.html', {"no": "User not found"})
         else:
             return render(request, 'Lab/SQL/sql_lab.html')
     else:
